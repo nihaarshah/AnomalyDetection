@@ -1,1 +1,1 @@
-This is the repository for Anomaly detectionj using normalizing flows and VAEs.
+This is the repository for Anomaly detection using normalizing flows and VAEs.
