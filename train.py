@@ -5,7 +5,7 @@ import collections
 import numpy as np
 import torch
 
-import data_loader.data_loaders as module_data
+import data_loader.data_loader as module_data
 import model.loss as module_loss
 import model.metric as module_metric
 import model.model as module_arch
@@ -24,11 +24,15 @@ def main(config):
     logger = config.get_logger('train')
 
     # setup data_loader instances
-    data_loader = config.init_obj('data_loader', module_data)
-    valid_data_loader = data_loader.split_validation()
+    data_loader = config.init_obj(
+        'data_loader', module_data, data_type="train")
+    valid_data_loader = None
+    # valid_data_loader = config.init_obj(
+    #     'data_loader', module_data, data_type="val")
 
     # build model architecture, then print to console
-    model = config.init_obj('arch', module_arch)
+    model = config.init_obj('arch', module_arch,
+                            input_dim=data_loader.dataset.tensors[0].shape[1])
     logger.info(model)
 
     # get function handles of loss and metrics
