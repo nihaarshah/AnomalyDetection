@@ -1,7 +1,6 @@
 import pickle
 
 import numpy as np
-import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import OneHotEncoder, StandardScaler
 
@@ -10,6 +9,7 @@ class KDD:
 
     anomaly_classes = ["normal."]
     multi_categorical_vars = [1, 2, 3]
+    scaling = True
     train_perc = 0.6
     val_perc = 0.2
     test_perc = 0.2
@@ -24,6 +24,7 @@ class KDD:
 
         self.encoders = [OneHotEncoder(sparse=False, drop='first')
                          for _ in range(len(self.multi_categorical_vars))]
+        self.scaler = StandardScaler()
 
         self._replace_categorical_one_hot()
         self._encode_anomalies()
@@ -59,8 +60,14 @@ class KDD:
             X_train, X_val, y_train, y_val = train_test_split(
                 X_train, y_train, test_size=self.val_perc/self.train_perc)
 
+            X_train = self.scaler.fit_transform(X_train)
+            X_val = self.scaler.transform(X_val)
             self._save_data(X_val, y_val, "kdd_val.pickle")
 
+        else:
+            X_train = self.scaler.fit_transform(X_train)
+
+        X_test = self.scaler.transform(X_test)
         X_train, y_train = self._remove_anomalies_from_train(X_train, y_train)
 
         self._save_data(X_train, y_train, "kdd_train.pickle")
