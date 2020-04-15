@@ -9,6 +9,7 @@ import data_loader.data_loader as module_data
 import model.loss as module_loss
 import model.metric as module_metric
 import model.model as module_arch
+import model.VAE as VAE
 from parse_config import ConfigParser
 from trainer import Trainer
 
@@ -31,8 +32,8 @@ def main(config):
     #     'data_loader', module_data, data_type="val")
 
     # build model architecture, then print to console
-    model = config.init_obj('arch', module_arch,
-                            input_dim=data_loader.dataset.tensors[0].shape[1])
+    model = config.init_obj('arch', VAE,
+                            input_size=data_loader.dataset.tensors[0].shape[1])
     logger.info(model)
 
     # get function handles of loss and metrics

@@ -2,14 +2,24 @@
     "name": "test",
     "n_gpu": 0,
     "arch": {
-        "type": "Model",
-        "args": {}
+        "type": "VAE",
+        "args": {
+            "encoder_sizes": [
+                300
+            ],
+            "decoder_sizes": [
+                300
+            ],
+            "z_size": 100,
+            "batch_norm": true,
+            "dropout": 0.2
+        }
     },
     "data_loader": {
         "type": "AnomDataLoader",
         "args": {
             "data_dir": "data/",
-            "batch_size": 128,
+            "batch_size": 1000,
             "shuffle": true,
             "num_workers": 1,
             "dataset": "kdd"
@@ -18,15 +28,13 @@
     "optimizer": {
         "type": "Adam",
         "args": {
-            "lr": 0.001,
+            "lr": 0.0001,
             "weight_decay": 0,
             "amsgrad": true
         }
     },
-    "loss": "mse_loss",
-    "metrics": [
-        "accuracy"
-    ],
+    "loss": "vae_loss",
+    "metrics": [],
     "lr_scheduler": {
         "type": "StepLR",
         "args": {
@@ -35,7 +43,7 @@
         }
     },
     "trainer": {
-        "epochs": 100,
+        "epochs": 10,
         "save_dir": "saved/",
         "save_period": 1,
         "verbosity": 2,

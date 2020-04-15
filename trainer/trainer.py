@@ -47,8 +47,8 @@ class Trainer(BaseTrainer):
             data, target = data.to(self.device), target.to(self.device)
 
             self.optimizer.zero_grad()
-            output = self.model(data)
-            loss = self.criterion(output, target)
+            output, z_mu, z_var, z = self.model(data)
+            loss = self.criterion(output, target, z, z_mu, z_var)
             loss.backward()
             self.optimizer.step()
 

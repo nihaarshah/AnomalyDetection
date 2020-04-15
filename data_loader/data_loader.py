@@ -15,10 +15,11 @@ class AnomDataLoader(DataLoader):
 
         assert data_type in ["train", "test",
                              "val"], "Data type must be one of train, test, val"
-        print(data_type)
+
         X, y = pickle.load(
             open(join(data_dir, dataset + "_" + data_type + ".pickle"), "rb"))
-        self.dataset = TensorDataset(
-            tensor(X).float(), tensor(y).float())
+
+        y = X if data_type in ["train", "val"] else y
+        self.dataset = TensorDataset(tensor(X).float(), tensor(y).float())
         super().__init__(dataset=self.dataset, batch_size=batch_size,
                          shuffle=shuffle, num_workers=num_workers)
