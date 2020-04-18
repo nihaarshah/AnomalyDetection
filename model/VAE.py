@@ -68,6 +68,7 @@ class VAE(nn.Module):
         """Reparameterization trick (sample z via a standard normal)"""
 
         std = var.sqrt()
+        print(std.device)
         eps = self.FloatTensor(std.size()).normal_()
         z = eps.mul(std).add_(mu)
 
