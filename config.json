@@ -2,14 +2,26 @@
     "name": "test",
     "n_gpu": 0,
     "arch": {
-        "type": "Model",
-        "args": {}
+        "type": "VAE",
+        "args": {
+            "encoder_sizes": [
+                100,
+                50
+            ],
+            "decoder_sizes": [
+                50,
+                100
+            ],
+            "z_size": 10,
+            "batch_norm": true,
+            "dropout": 0.0
+        }
     },
     "data_loader": {
         "type": "AnomDataLoader",
         "args": {
             "data_dir": "data/",
-            "batch_size": 128,
+            "batch_size": 1000,
             "shuffle": true,
             "num_workers": 1,
             "dataset": "kdd"
@@ -18,29 +30,39 @@
     "optimizer": {
         "type": "Adam",
         "args": {
-            "lr": 0.001,
+            "lr": 5e-4,
             "weight_decay": 0,
-            "amsgrad": true
+            "amsgrad": false
         }
     },
-    "loss": "mse_loss",
-    "metrics": [
-        "accuracy"
-    ],
+    "loss": "vae_loss",
+    "kl_strategy": {
+        "C_start": 0,
+        "C_stop": 25,
+        "gamma": 1000,
+        "recon_loss": "mse",
+        "loss": "weight",
+        "schedule": "cyclical",
+        "beta_start": 0.0,
+        "beta_stop": 1.0,
+        "n_cycle": 4,
+        "ratio": 0.7
+    },
+    "metrics": [],
     "lr_scheduler": {
         "type": "StepLR",
         "args": {
             "step_size": 50,
-            "gamma": 0.1
+            "gamma": 0.999
         }
     },
     "trainer": {
         "epochs": 100,
         "save_dir": "saved/",
-        "save_period": 1,
+        "save_period": 5,
         "verbosity": 2,
         "monitor": "min val_loss",
-        "early_stop": 10,
+        "early_stop": 25,
         "tensorboard": true
     }
 }
