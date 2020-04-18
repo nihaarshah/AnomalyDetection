@@ -33,6 +33,8 @@ class Arrhythmia:
             if self.scaling:
                 X_train = self.scaler.fit_transform(X_train)
                 X_val = self.scaler.transform(X_val)
+
+            X_val, y_val = self._remove_anomalies(X_val, y_val)
             self._save_data(X_val, y_val, "arr_val.pickle")
 
         elif self.scaling:
@@ -41,12 +43,12 @@ class Arrhythmia:
         if self.scaling:
             X_test = self.scaler.transform(X_test)
 
-        X_train, y_train = self._remove_anomalies_from_train(X_train, y_train)
+        X_train, y_train = self._remove_anomalies(X_train, y_train)
 
         self._save_data(X_train, y_train, "arr_train.pickle")
         self._save_data(X_test, y_test, "arr_test.pickle")
 
-    def _remove_anomalies_from_train(self, X, y):
+    def _remove_anomalies(self, X, y):
         return (X[y == 0, :], y[y == 0])
 
     def _save_data(self, X, y, path):
@@ -54,4 +56,5 @@ class Arrhythmia:
 
 
 if __name__ == "__main__":
-    arr = Arrhythmia('arrhythmia.pickle')
+    arr = Arrhythmia('arrhythmia.pickle', train_perc=0.6,
+                     val_perc=0.2, test_perc=0.2)

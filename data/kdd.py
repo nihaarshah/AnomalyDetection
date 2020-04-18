@@ -62,6 +62,8 @@ class KDD:
             if self.scaling:
                 X_train = self.scaler.fit_transform(X_train)
                 X_val = self.scaler.transform(X_val)
+
+            X_val, y_val = self._remove_anomalies(X_val, y_val)
             self._save_data(X_val, y_val, "kdd_val.pickle")
 
         elif self.scaling:
@@ -70,12 +72,12 @@ class KDD:
         if self.scaling:
             X_test = self.scaler.transform(X_test)
 
-        X_train, y_train = self._remove_anomalies_from_train(X_train, y_train)
+        X_train, y_train = self._remove_anomalies(X_train, y_train)
 
         self._save_data(X_train, y_train, "kdd_train.pickle")
         self._save_data(X_test, y_test, "kdd_test.pickle")
 
-    def _remove_anomalies_from_train(self, X, y):
+    def _remove_anomalies(self, X, y):
         return (X[y == 0, :], y[y == 0])
 
     def _save_data(self, X, y, path):
@@ -83,4 +85,5 @@ class KDD:
 
 
 if __name__ == "__main__":
-    kdd = KDD('kdd99.pickle')
+    kdd = KDD('kdd99.pickle', train_perc=0.6,
+              val_perc=0.2, test_perc=0.2)

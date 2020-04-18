@@ -6,7 +6,7 @@ import torch
 import torch.utils.data
 
 MIN_EPSILON = 1e-5
-MAX_EPSILON = 1. - 1e-5
+MAX_EPSILON = 1.0 - 1e-5
 
 PI = torch.FloatTensor([math.pi])
 if torch.cuda.is_available():
@@ -17,8 +17,7 @@ if torch.cuda.is_available():
 
 
 def log_normal_diag(x, mean, log_var, average=False, reduce=True, dim=None):
-    log_norm = -0.5 * (log_var + (x - mean) * (x - mean)
-                       * log_var.exp().reciprocal())
+    log_norm = -0.5 * (log_var + (x - mean) * (x - mean) * log_var.exp().reciprocal())
     if reduce:
         if average:
             return torch.mean(log_norm, dim)
@@ -30,9 +29,9 @@ def log_normal_diag(x, mean, log_var, average=False, reduce=True, dim=None):
 
 def log_normal_normalized(x, mean, log_var, average=False, reduce=True, dim=None):
     log_norm = -(x - mean) * (x - mean)
-    log_norm *= torch.reciprocal(2. * log_var.exp())
+    log_norm *= torch.reciprocal(2.0 * log_var.exp())
     log_norm += -0.5 * log_var
-    log_norm += -0.5 * torch.log(2. * PI)
+    log_norm += -0.5 * torch.log(2.0 * PI)
 
     if reduce:
         if average:
