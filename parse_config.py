@@ -28,6 +28,8 @@ class ConfigParser:
         save_dir = Path(self.config["trainer"]["save_dir"])
 
         exper_name = f"{self.config['data_loader']['args']['dataset']}/{self.config['data_loader']['args']['scaling']}"
+        if resume is not None:
+            run_id = str(self.resume).split("/")[-2] + "_resume"
         if run_id is None:  # use timestamp as default run-id
             run_id = datetime.now().strftime(r"%m%d_%H%M%S")
         self._save_dir = save_dir / "models" / exper_name / run_id

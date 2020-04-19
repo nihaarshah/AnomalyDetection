@@ -12,8 +12,8 @@
                 128,
                 256
             ],
-            "z_size": 32,
-            "batch_norm": true,
+            "z_size": 64,
+            "batch_norm": false,
             "dropout": 0.0
         }
     },
@@ -46,8 +46,8 @@
         "schedule": "cyclical",
         "beta_start": 0.0,
         "beta_stop": 1.0,
-        "n_cycle": 4,
-        "ratio": 0.8
+        "n_cycle": 6,
+        "ratio": 0.65
     },
     "metrics": [],
     "lr_scheduler": {
@@ -63,7 +63,7 @@
         "save_period": 5,
         "verbosity": 2,
         "monitor": "min val_loss",
-        "early_stop": 300,
+        "early_stop": 1000,
         "tensorboard": true
     }
 }

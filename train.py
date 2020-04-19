@@ -27,6 +27,7 @@ def main(config):
     # setup data_loader instances
     data_loader = config.init_obj("data_loader", module_data, data_type="train")
     valid_data_loader = config.init_obj("data_loader", module_data, data_type="val")
+    test_data_loader = config.init_obj("data_loader", module_data, data_type="test")
     # valid_data_loader = config.init_obj(
     #     'data_loader', module_data, data_type="val")
 
@@ -52,10 +53,12 @@ def main(config):
         config=config,
         data_loader=data_loader,
         valid_data_loader=valid_data_loader,
+        test_data_loader=test_data_loader,
         lr_scheduler=lr_scheduler,
     )
 
     trainer.train()
+    trainer.evaluate()
 
 
 if __name__ == "__main__":
