@@ -7,7 +7,7 @@ def mse_loss(output, target):
     return F.mse_loss(output, target)
 
 
-def binary_loss(output, target):
+def bce_loss(output, target):
     return F.binary_cross_entropy_with_logits(output, target)
 
 
@@ -72,8 +72,8 @@ def vae_loss(
         recon = mse_loss(output, target)
     elif recon_loss == "huber":
         recon = huber_loss(output, target)
-    elif recon_loss == "binary":
-        recon = binary_loss(output, target)
+    elif recon_loss == "bce":
+        recon = bce_loss(output, target)
 
     kld = kl_divergence(z, z_mu, z_var)
 

@@ -11,15 +11,23 @@ class AnomDataLoader(DataLoader):
     Data Loader for anomoly data
     """
 
-    def __init__(self, data_dir, batch_size, shuffle=True, num_workers=1, dataset="kdd", data_type="train"):
+    def __init__(
+        self,
+        data_dir,
+        batch_size,
+        shuffle=True,
+        num_workers=1,
+        dataset="kdd",
+        data_type="train",
+        scaling="binary",
+    ):
 
-        assert data_type in ["train", "test",
-                             "val"], "Data type must be one of train, test, val"
+        assert data_type in ["train", "test", "val"], "Data type must be one of train, test, val"
 
-        X, y = pickle.load(
-            open(join(data_dir, dataset + "_" + data_type + ".pickle"), "rb"))
+        X, y = pickle.load(open(join(data_dir, f"{dataset}_{data_type}_{scaling}.pickle"), "rb"))
 
         y = X if data_type in ["train", "val"] else y
         self.dataset = TensorDataset(tensor(X).float(), tensor(y).float())
-        super().__init__(dataset=self.dataset, batch_size=batch_size,
-                         shuffle=shuffle, num_workers=num_workers)
+        super().__init__(
+            dataset=self.dataset, batch_size=batch_size, shuffle=shuffle, num_workers=num_workers
+        )
