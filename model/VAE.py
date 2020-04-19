@@ -42,7 +42,7 @@ class VAE(nn.Module):
         layers = []
         for l in range(1, len(self.encoder_sizes)):
             layers.append(nn.Linear(self.encoder_sizes[l - 1], self.encoder_sizes[l]))
-            layers.append(nn.ReLU())
+            layers.append(nn.LeakyReLU(.1))
             if self.batch_norm:
                 layers.append(nn.BatchNorm1d(self.encoder_sizes[l]))
             layers.append(nn.Dropout(self.dropout))

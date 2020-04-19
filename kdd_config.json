@@ -24,7 +24,8 @@
             "batch_size": 1000,
             "shuffle": true,
             "num_workers": 1,
-            "dataset": "kdd"
+            "dataset": "kdd",
+            "scaling": "binary"
         }
     },
     "optimizer": {
@@ -40,7 +41,7 @@
         "C_start": 0,
         "C_stop": 25,
         "gamma": 1000,
-        "recon_loss": "mse",
+        "recon_loss": "bce",
         "loss": "weight",
         "schedule": "cyclical",
         "beta_start": 0.0,

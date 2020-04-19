@@ -27,7 +27,7 @@ class ConfigParser:
         # set save_dir where trained model and log will be saved.
         save_dir = Path(self.config["trainer"]["save_dir"])
 
-        exper_name = self.config["data_loader"]["args"]["dataset"]
+        exper_name = f"{self.config['data_loader']['args']['dataset']}/{self.config['data_loader']['args']['scaling']}"
         if run_id is None:  # use timestamp as default run-id
             run_id = datetime.now().strftime(r"%m%d_%H%M%S")
         self._save_dir = save_dir / "models" / exper_name / run_id

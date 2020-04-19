@@ -2,7 +2,7 @@ import pickle
 
 import numpy as np
 from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import OneHotEncoder, StandardScaler
+from sklearn.preprocessing import MinMaxScaler, OneHotEncoder, StandardScaler
 
 
 class KDD:
@@ -10,21 +10,25 @@ class KDD:
     anomaly_classes = ["normal."]
     multi_categorical_vars = [1, 2, 3]
 
-    def __init__(self, data_path, train_perc=0.75, test_perc=0.25, val_perc=0,  scaling=True):
+    def __init__(self, data_path, train_perc=0.6, test_perc=0.2, val_perc=0.2, scaling="binary"):
 
         self.data_dict = pickle.load(open(data_path, "rb"))
         self.X = self.data_dict["data"]
         self.y = self.data_dict["target"].astype(str)
-        self.non_multi_cat_vars = [i for i in range(
-            self.X.shape[1]) if i not in self.multi_categorical_vars]
+        self.non_multi_cat_vars = [
+            i for i in range(self.X.shape[1]) if i not in self.multi_categorical_vars
+        ]
 
-        self.encoders = [OneHotEncoder(sparse=False, drop='first')
-                         for _ in range(len(self.multi_categorical_vars))]
-        self.scaler = StandardScaler()
+        self.encoders = [
+            OneHotEncoder(sparse=False, drop="first")
+            for _ in range(len(self.multi_categorical_vars))
+        ]
+        self.scaler = MinMaxScaler() if scaling == "binary" else StandardScaler()
+        print(scaler)
+        self.scaling = scaling
         self.train_perc = train_perc
         self.test_perc = test_perc
         self.val_perc = val_perc
-        self.scaling = scaling
         self._replace_categorical_one_hot()
         self._encode_anomalies()
         self._split_train_val_test()
@@ -34,8 +38,7 @@ class KDD:
         categorical_data = []
         for i in range(len(self.multi_categorical_vars)):
             var = self.multi_categorical_vars[i]
-            one_hot = self.encoders[i].fit_transform(
-                self.X[:, var].reshape(-1, 1))
+            one_hot = self.encoders[i].fit_transform(self.X[:, var].reshape(-1, 1))
             categorical_data.append(one_hot)
 
         return np.concatenate(categorical_data, axis=1)
@@ -53,29 +56,23 @@ class KDD:
     def _split_train_val_test(self):
 
         X_train, X_test, y_train, y_test = train_test_split(
-            self.X, self.y, test_size=self.test_perc, random_state=42)
+            self.X, self.y, test_size=self.test_perc, random_state=42
+        )
 
-        if self.val_perc > 0:
-            X_train, X_val, y_train, y_val = train_test_split(
-                X_train, y_train, test_size=self.val_perc/self.train_perc, random_state=42)
+        X_train, X_val, y_train, y_val = train_test_split(
+            X_train, y_train, test_size=self.val_perc / self.train_perc, random_state=42
+        )
 
-            if self.scaling:
-                X_train = self.scaler.fit_transform(X_train)
-                X_val = self.scaler.transform(X_val)
-
-            X_val, y_val = self._remove_anomalies(X_val, y_val)
-            self._save_data(X_val, y_val, "kdd_val.pickle")
-
-        elif self.scaling:
-            X_train = self.scaler.fit_transform(X_train)
-
-        if self.scaling:
-            X_test = self.scaler.transform(X_test)
+        X_train = self.scaler.fit_transform(X_train)
+        X_val = self.scaler.transform(X_val)
+        X_test = self.scaler.transform(X_test)
 
         X_train, y_train = self._remove_anomalies(X_train, y_train)
+        X_val, y_val = self._remove_anomalies(X_val, y_val)
 
-        self._save_data(X_train, y_train, "kdd_train.pickle")
-        self._save_data(X_test, y_test, "kdd_test.pickle")
+        self._save_data(X_train, y_train, f"kdd_train_{self.scaling}.pickle")
+        self._save_data(X_val, y_val, f"kdd_val_{self.scaling}.pickle")
+        self._save_data(X_test, y_test, f"kdd_test_{self.scaling}.pickle")
 
     def _remove_anomalies(self, X, y):
         return (X[y == 0, :], y[y == 0])
@@ -85,5 +82,4 @@ class KDD:
 
 
 if __name__ == "__main__":
-    kdd = KDD('kdd99.pickle', train_perc=0.6,
-              val_perc=0.2, test_perc=0.2)
+    kdd = KDD("kdd99.pickle", train_perc=0.6, val_perc=0.2, test_perc=0.2, scaling="binary")
