@@ -24,7 +24,10 @@ class AnomDataLoader(DataLoader):
 
         assert data_type in ["train", "test", "val"], "Data type must be one of train, test, val"
 
-        X, y = pickle.load(open(join(data_dir, f"{dataset}_{data_type}_{scaling}.pickle"), "rb"))
+        # X, y = pickle.load(open(join(data_dir, f"{dataset}_{data_type}_{scaling}.pickle"), "rb"))
+        X, y = pickle.load(
+            open(join(data_dir, "{}_{}_{}.pickle".format(dataset, data_type, scaling),), "rb",)
+        )
 
         y = X if data_type in ["train", "val"] else y
         batch_size = batch_size if data_type in ["train", "val"] else 1
