@@ -27,6 +27,7 @@ class AnomDataLoader(DataLoader):
         X, y = pickle.load(open(join(data_dir, f"{dataset}_{data_type}_{scaling}.pickle"), "rb"))
 
         y = X if data_type in ["train", "val"] else y
+        batch_size = batch_size if data_type in ["train", "val"] else 1
         self.dataset = TensorDataset(tensor(X).float(), tensor(y).float())
         super().__init__(
             dataset=self.dataset, batch_size=batch_size, shuffle=shuffle, num_workers=num_workers

@@ -2,11 +2,13 @@
 import numpy as np
 import torch
 
+from model.loss import top_n_percent_anomaly
+
 # from torchvision.utils import make_grid
 from utils import MetricTracker, inf_loop
 
 from .base_trainer import BaseTrainer
-from .kl_schedule import capacity_increase, frange_cycle_linear, kl_scheduler, start_stop
+from .kl_schedule import kl_scheduler, start_stop
 
 
 class Trainer(BaseTrainer):
@@ -23,6 +25,7 @@ class Trainer(BaseTrainer):
         config,
         data_loader,
         valid_data_loader=None,
+        test_data_loader=None,
         lr_scheduler=None,
         len_epoch=None,
     ):
@@ -36,8 +39,10 @@ class Trainer(BaseTrainer):
             # iteration-based training
             self.data_loader = inf_loop(data_loader)
             self.len_epoch = len_epoch
+
         self.valid_data_loader = valid_data_loader
         self.do_validation = self.valid_data_loader is not None
+        self.test_data_loader = test_data_loader
         self.lr_scheduler = lr_scheduler
         self.log_step = int(np.sqrt(data_loader.batch_size))
 
@@ -182,6 +187,40 @@ class Trainer(BaseTrainer):
         # for name, p in self.model.named_parameters():
         #     self.writer.add_histogram(name, p, bins="auto")
         return self.valid_metrics.result()
+
+    def evaluate(self):
+
+        self.model.eval()
+        recon_losses = []
+        targets = []
+        with torch.no_grad():
+            for i, (data, target) in enumerate(self.test_data_loader):
+                data, target = data.to(self.device), target.to(self.device)
+
+                output, z_mu, z_var, z = self.model(data)
+
+                # computing loss, metrics on test set
+                loss, recon, kld, kl_weight_param = self.criterion(
+                    output=output,
+                    target=data,
+                    z=z,
+                    z_mu=z_mu,
+                    z_var=z_var,
+                    kl_weight_param=1,
+                    gamma=self.gamma,
+                    recon_loss=self.recon_loss,
+                    kl_loss=self.kl_loss,
+                )
+
+                recon_losses.append(recon.item())
+                targets.append(target.item())
+
+        anomaly_metrics = top_n_percent_anomaly(
+            recon_losses, targets, dataset=self.config["data_loader"]["args"]["dataset"]
+        )
+        self.logger.info("================ Test Results ===================")
+        for key, value in anomaly_metrics.items():
+            self.logger.info("    {:15s}: {}".format(str(key), value))
 
     def _progress(self, batch_idx):
         base = "[{}/{} ({:.0f}%)]"
