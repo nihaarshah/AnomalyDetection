@@ -70,9 +70,9 @@ class KDD:
         X_train, y_train = self._remove_anomalies(X_train, y_train)
         X_val, y_val = self._remove_anomalies(X_val, y_val)
 
-        self._save_data(X_train, y_train, f"kdd_train_{self.scaling}.pickle")
-        self._save_data(X_val, y_val, f"kdd_val_{self.scaling}.pickle")
-        self._save_data(X_test, y_test, f"kdd_test_{self.scaling}.pickle")
+        self._save_data(X_train, y_train, "kdd_train_{}.pickle".format(self.scaling))
+        self._save_data(X_val, y_val, "kdd_val_{}.pickle".format(self.scaling))
+        self._save_data(X_test, y_test, "kdd_test_{}.pickle".format(self.scaling))
 
     def _remove_anomalies(self, X, y):
         return (X[y == 0, :], y[y == 0])

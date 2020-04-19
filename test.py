@@ -78,19 +78,15 @@ def main(config):
             # total_loss += loss.item() * batch_size
             # for i, metric in enumerate(metric_fns):
             #     total_metrics[i] += metric(output, target) * batch_size
-    print(len(targets))
-    print(len(recon_losses))
-    acc, f1, recall, precision = module_loss.top_n_percent_anomaly(
+    anomaly_results = module_loss.top_n_percent_anomaly(
         recon_losses, targets, dataset=config["data_loader"]["args"]["dataset"]
     )
-    print(f1)
-    print(acc)
     # n_samples = len(data_loader.sampler)
-    log = {"acc": acc, "f1": f1, "recall": recall, "preciion": precision}
+    # log = {"acc": acc, "f1": f1, "recall": recall, "preciion": precision}
     # log.update(
     #     {met.__name__: total_metrics[i].item() / n_samples for i, met in enumerate(metric_fns)}
     # )
-    logger.info(log)
+    logger.info(anomaly_results)
 
 
 if __name__ == "__main__":
