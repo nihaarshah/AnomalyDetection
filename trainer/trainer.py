@@ -99,14 +99,16 @@ class Trainer(BaseTrainer):
             data, target = data.to(self.device), target.to(self.device)
 
             self.optimizer.zero_grad()
-            output, z_mu, z_var, z = self.model(data)
+            output, z_mu, z_var, ldj, z_0, z_k = self.model(data)
 
             loss, recon, kld, kl_weight_param = self.criterion(
                 output=output,
                 target=target,
-                z=z,
                 z_mu=z_mu,
                 z_var=z_var,
+                z_0=z_0,
+                z_k=z_k,
+                ldj=ldj,
                 kl_weight_param=self.kl_weight_param_schedule[step],
                 gamma=self.gamma,
                 recon_loss=self.recon_loss,
@@ -159,14 +161,16 @@ class Trainer(BaseTrainer):
         with torch.no_grad():
             for batch_idx, (data, target) in enumerate(self.valid_data_loader):
                 data, target = data.to(self.device), target.to(self.device)
-                output, z_mu, z_var, z = self.model(data)
+                output, z_mu, z_var, ldj, z_0, z_k = self.model(data)
                 mse = torch.nn.MSELoss()
                 loss, recon, kld, kl_weight_param = self.criterion(
                     output=output,
                     target=target,
-                    z=z,
                     z_mu=z_mu,
                     z_var=z_var,
+                    z_0=z_0,
+                    z_k=z_k,
+                    ldj=ldj,
                     kl_weight_param=1,
                     gamma=self.gamma,
                     recon_loss=self.recon_loss,
@@ -197,15 +201,17 @@ class Trainer(BaseTrainer):
             for i, (data, target) in enumerate(self.test_data_loader):
                 data, target = data.to(self.device), target.to(self.device)
 
-                output, z_mu, z_var, z = self.model(data)
+                output, z_mu, z_var, ldj, z_0, z_k = self.model(data)
 
                 # computing loss, metrics on test set
                 loss, recon, kld, kl_weight_param = self.criterion(
                     output=output,
                     target=data,
-                    z=z,
                     z_mu=z_mu,
                     z_var=z_var,
+                    z_0=z_0,
+                    z_k=z_k,
+                    ldj=ldj,
                     kl_weight_param=1,
                     gamma=self.gamma,
                     recon_loss=self.recon_loss,

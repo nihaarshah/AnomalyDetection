@@ -94,4 +94,4 @@ class VAE(nn.Module):
 
         output = self.decode(z)
         # Return more here with flows like in https://github.com/rtqichen/ffjord/blob/bce4d2def767f2b9a3288ae0b5d43781ad4dc6b1/vae_lib/models/VAE.py#L170
-        return output, z_mu, z_var, z
+        return output, z_mu, z_var, self.log_det_j, z, z

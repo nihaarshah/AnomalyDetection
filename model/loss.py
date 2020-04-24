@@ -1,7 +1,6 @@
 import numpy as np
 import torch.nn.functional as F
-from sklearn.metrics import (accuracy_score, f1_score, precision_score,
-                             recall_score)
+from sklearn.metrics import accuracy_score, f1_score, precision_score, recall_score
 
 from .loss_utils import *
 
@@ -18,27 +17,31 @@ def huber_loss(output, target):
     return F.smooth_l1_loss(output, target)
 
 
-def kl_divergence(z, z_mu, z_var):
+def kl_divergence(z_mu, z_var, z_0, z_k, ldj):
     """KL divergence for non-flow VAE
 
     Args:
-        z: posterior estimate sample
         z_mu: posterior estimate mean
         z_var: posterior estimate var
+        z_0: first stochastic latent variable
+        z_k: last stochastic latent variable
+        ldj: log det jacobian
     """
 
-    log_q_z = log_normal_diag(z, mean=z_mu, log_var=z_var.log(), dim=1)
-    log_p_z = log_normal_standard(z, dim=1)
+    log_p_z = log_normal_standard(z_k, dim=1)
+    log_q_z = log_normal_diag(z_0, mean=z_mu, log_var=z_var.log(), dim=1)
 
-    return torch.mean(log_q_z - log_p_z)
+    return torch.mean(log_q_z - log_p_z - ldj)
 
 
 def vae_loss(
     output,
     target,
-    z,
     z_mu,
     z_var,
+    z_0,
+    z_k,
+    ldj,
     kl_weight_param=None,
     gamma=None,
     recon_loss="mse",
@@ -60,9 +63,11 @@ def vae_loss(
     Args:
         output: VAE output
         target: target reconstruction
-        z: latent sample
         z_mu: latent mean
         z_var: latent var
+        z_0: first stochastic latent variable
+        z_k: last stochastic latent variable
+        ldj: log det jacobian,
         kl_weight_param: beta weight or KL capacity. Defaults to None.
         gamma: gamma weight for KL capacity. Defaults to None.
         recon_loss: reconstruction loss. Defaults to "mse".
@@ -78,7 +83,7 @@ def vae_loss(
     elif recon_loss == "bce":
         recon = bce_loss(output, target)
 
-    kld = kl_divergence(z, z_mu, z_var)
+    kld = kl_divergence(z_mu, z_var, z_0, z_k, ldj)
 
     if kl_loss == "capacity":
         C = kl_weight_param
