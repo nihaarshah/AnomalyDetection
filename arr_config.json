@@ -14,7 +14,8 @@
             ],
             "z_size": 64,
             "batch_norm": false,
-            "dropout": 0.0
+            "dropout": 0.0,
+            "num_flows": 2
         }
     },
     "data_loader": {
@@ -45,7 +46,7 @@
         "loss": "weight",
         "schedule": "cyclical",
         "beta_start": 0.0,
-        "beta_stop": 1.0,
+        "beta_stop": 0.1,
         "n_cycle": 6,
         "ratio": 0.65
     },

@@ -100,7 +100,6 @@ class Trainer(BaseTrainer):
 
             self.optimizer.zero_grad()
             output, z_mu, z_var, ldj, z_0, z_k = self.model(data)
-
             loss, recon, kld, kl_weight_param = self.criterion(
                 output=output,
                 target=target,
