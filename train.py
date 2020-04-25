@@ -33,6 +33,7 @@ def main(config):
 
     # build model architecture, then print to console
     model = config.init_obj("arch", VAE, input_size=data_loader.dataset.tensors[0].shape[1])
+    # model = PVAE(input_size=data_loader.dataset.tensors[0].shape[1], encoder_sizes=[128,64], decoder_sizes=[64,128], z_size=32,num_flows=2)
     logger.info(model)
 
     # get function handles of loss and metrics

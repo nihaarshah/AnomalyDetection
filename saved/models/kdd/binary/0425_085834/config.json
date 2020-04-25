@@ -1,0 +1,70 @@
+{
+    "name": "test",
+    "n_gpu": 1,
+    "arch": {
+        "type": "VAE",
+        "args": {
+            "encoder_sizes": [
+                128,
+                64
+            ],
+            "decoder_sizes": [
+                64,
+                128
+            ],
+            "z_size": 32,
+            "batch_norm": false,
+            "dropout": 0.0
+        }
+    },
+    "arch_type": "PVAE",
+    "data_loader": {
+        "type": "AnomDataLoader",
+        "args": {
+            "data_dir": "data/",
+            "batch_size": 1000,
+            "shuffle": true,
+            "num_workers": 1,
+            "dataset": "kdd",
+            "scaling": "binary"
+        }
+    },
+    "optimizer": {
+        "type": "Adam",
+        "args": {
+            "lr": 0.0005,
+            "weight_decay": 0,
+            "amsgrad": false
+        }
+    },
+    "loss": "vae_loss",
+    "kl_strategy": {
+        "C_start": 0,
+        "C_stop": 25,
+        "gamma": 1000,
+        "recon_loss": "bce",
+        "loss": "weight",
+        "schedule": "cyclical",
+        "beta_start": 0.0,
+        "beta_stop": 1.0,
+        "n_cycle": 6,
+        "ratio": 0.65
+    },
+    "metrics": [],
+    "lr_scheduler": {
+        "type": "StepLR",
+        "args": {
+            "step_size": 50,
+            "gamma": 0.999
+        }
+    },
+    "trainer": {
+        "epochs": 100,
+        "save_dir": "saved/",
+        "save_period": 5,
+        "verbosity": 2,
+        "monitor": "min val_loss",
+        "early_stop": 40,
+        "tensorboard": true
+    }
+}

@@ -14,9 +14,12 @@
             ],
             "z_size": 32,
             "batch_norm": false,
-            "dropout": 0.0
+            "dropout": 0.0,
+            "num_flows":2
         }
     },
+    "arch_type":"PVAE",
+
     "data_loader": {
         "type": "AnomDataLoader",
         "args": {
