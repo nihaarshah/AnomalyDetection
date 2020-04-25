@@ -3,12 +3,11 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-
+import model.flows as flows
 
 class VAE(nn.Module):
     def __init__(
-        self, input_size, encoder_sizes, decoder_sizes, z_size, batch_norm=False, dropout=0
-    ):
+        self, input_size, encoder_sizes, decoder_sizes, z_size, num_flows, batch_norm=False, dropout=0):
         super().__init__()
         self.input_size = input_size
         self.z_size = z_size
@@ -19,6 +18,8 @@ class VAE(nn.Module):
         self._set_encoder()
         self._set_decoder()
         self.weight_init()
+        self.num_flows=num_flows
+        self.q_z_nn_output_dim = encoder_sizes[-1] # the size of the bottleneck
 
         self.FloatTensor = (
             torch.FloatTensor if not torch.cuda.is_available() else torch.cuda.FloatTensor
@@ -95,3 +96,77 @@ class VAE(nn.Module):
         output = self.decode(z)
         # Return more here with flows like in https://github.com/rtqichen/ffjord/blob/bce4d2def767f2b9a3288ae0b5d43781ad4dc6b1/vae_lib/models/VAE.py#L170
         return output, z_mu, z_var, self.log_det_j, z, z
+
+
+
+
+class PlanarVAE(VAE):
+    """
+    Variational auto-encoder with planar flows in the encoder.
+    """
+
+    def __init__(self, *args,**kwargs):
+        print("Args to Planar VAE are",args)
+        super(PlanarVAE, self).__init__(*args,**kwargs)
+
+        # Initialize log-det-jacobian to zero
+        self.log_det_j = 0.
+
+        # Flow parameters
+        flow = flows.Planar
+
+        # Amortized flow parameters
+        self.amor_u = nn.Linear(self.q_z_nn_output_dim, self.num_flows * self.z_size)
+        self.amor_w = nn.Linear(self.q_z_nn_output_dim, self.num_flows * self.z_size)
+        self.amor_b = nn.Linear(self.q_z_nn_output_dim, self.num_flows)
+
+        # Normalizing flow layers
+        for k in range(self.num_flows):
+            flow_k = flow()
+            self.add_module('flow_' + str(k), flow_k)
+
+    def encode(self, x):
+        """
+        Encoder that ouputs parameters for base distribution of z and flow parameters.
+        """
+
+        batch_size = x.size(0)
+
+        h = self.encoder(x)
+
+        h = h.view(-1, self.q_z_nn_output_dim)
+        # print("hidden unit has shape",h.shape) # 250 x 256
+        mean_z = self.z_mu(h)
+        var_z = self.z_var(h)
+
+        # return amortized u an w for all flows
+        u = self.amor_u(h).view(batch_size, self.num_flows, self.z_size, 1)
+        w = self.amor_w(h).view(batch_size, self.num_flows, 1, self.z_size)
+        b = self.amor_b(h).view(batch_size, self.num_flows, 1, 1)
+
+        return mean_z, var_z, u, w, b
+
+    def forward(self, x):
+        """
+        Forward pass with planar flows for the transformation z_0 -> z_1 -> ... -> z_k.
+        Log determinant is computed as log_det_j = N E_q_z0[\sum_k log |det dz_k/dz_k-1| ].
+        """
+
+        self.log_det_j = 0.
+
+        z_mu, z_var, u, w, b = self.encode(x)
+
+        # Sample z_0
+        z = [self.reparameterize(z_mu, z_var)]
+
+        # Normalizing flows
+        for k in range(self.num_flows):
+            flow_k = getattr(self, 'flow_' + str(k))
+            z_k, log_det_jacobian = flow_k(z[k], u[:, k, :, :], w[:, k, :, :], b[:, k, :, :])
+            z.append(z_k)
+            self.log_det_j += log_det_jacobian
+
+        x_mean = self.decode(z[-1])
+
+        return x_mean, z_mu, z_var, self.log_det_j, z[0], z[-1]
+
