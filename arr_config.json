@@ -2,7 +2,7 @@
     "name": "test",
     "n_gpu": 1,
     "arch": {
-        "type": "VAE",
+        "type": "PlanarVAE",
         "args": {
             "encoder_sizes": [
                 256,
@@ -15,7 +15,7 @@
             "z_size": 64,
             "batch_norm": false,
             "dropout": 0.0,
-            "num_flows": 2
+            "num_flows": 10
         }
     },
     "data_loader": {
@@ -59,7 +59,7 @@
         }
     },
     "trainer": {
-        "epochs": 150,
+        "epochs": 50,
         "save_dir": "saved/",
         "save_period": 5,
         "verbosity": 2,

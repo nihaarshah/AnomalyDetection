@@ -24,7 +24,6 @@ class KDD:
             for _ in range(len(self.multi_categorical_vars))
         ]
         self.scaler = MinMaxScaler() if scaling == "binary" else StandardScaler()
-        print(scaler)
         self.scaling = scaling
         self.train_perc = train_perc
         self.test_perc = test_perc

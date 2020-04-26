@@ -1,20 +1,19 @@
 import numpy as np
 import torch.nn.functional as F
-from sklearn.metrics import accuracy_score, f1_score, precision_score, recall_score
 
 from .loss_utils import *
 
 
 def mse_loss(output, target):
-    return F.mse_loss(output, target)
+    return F.mse_loss(output, target, reduce=False)
 
 
 def bce_loss(output, target):
-    return F.binary_cross_entropy_with_logits(output, target)
+    return F.binary_cross_entropy_with_logits(output, target, reduce=False).mean(axis=1)
 
 
 def huber_loss(output, target):
-    return F.smooth_l1_loss(output, target)
+    return F.smooth_l1_loss(output, target, reduce=False).mean(axis=1)
 
 
 def kl_divergence(z_mu, z_var, z_0, z_k, ldj):
@@ -31,7 +30,7 @@ def kl_divergence(z_mu, z_var, z_0, z_k, ldj):
     log_p_z = log_normal_standard(z_k, dim=1)
     log_q_z = log_normal_diag(z_0, mean=z_mu, log_var=z_var.log(), dim=1)
 
-    return torch.mean(log_q_z - log_p_z - ldj)
+    return log_q_z - log_p_z - ldj
 
 
 def vae_loss(
@@ -46,6 +45,7 @@ def vae_loss(
     gamma=None,
     recon_loss="mse",
     kl_loss="capacity",
+    pointwise=False,
 ):
     """
     Implements two types of loss:
@@ -72,6 +72,7 @@ def vae_loss(
         gamma: gamma weight for KL capacity. Defaults to None.
         recon_loss: reconstruction loss. Defaults to "mse".
         kl_loss: capcity or weight. Defaults to "capacity".
+        pointwise: return pointwise loss
     Returns:
         vae loss
     """
@@ -93,22 +94,9 @@ def vae_loss(
         beta = kl_weight_param
         kl_term = beta * kld
 
+    if not pointwise:
+        recon = torch.mean(recon)
+        kl_term = torch.mean(kl_term)
+        kld = torch.mean(kld)
+
     return recon + kl_term, recon, kld, kl_weight_param
-
-
-def top_n_percent_anomaly(recon_error, true, dataset="kdd"):
-
-    top_n_perc = 0.2 if dataset == "kdd" else 0.15
-    n_obs = len(recon_error)
-    top_n = int(n_obs * top_n_perc)
-    top_recon_error_idx = np.argsort(recon_error)[-top_n:]
-
-    predicted = np.zeros(n_obs)
-    predicted[top_recon_error_idx] = 1
-
-    return {
-        "accuracy": round(accuracy_score(true, predicted), 5),
-        "f1": round(f1_score(true, predicted), 5),
-        "recall": round(recall_score(true, predicted), 5),
-        "precision": round(precision_score(true, predicted), 5),
-    }

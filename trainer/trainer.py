@@ -2,7 +2,7 @@
 import numpy as np
 import torch
 
-from model.loss import top_n_percent_anomaly
+from model.evaluation import top_n_percent_anomaly
 
 # from torchvision.utils import make_grid
 from utils import MetricTracker, inf_loop
@@ -200,12 +200,33 @@ class Trainer(BaseTrainer):
             for i, (data, target) in enumerate(self.test_data_loader):
                 data, target = data.to(self.device), target.to(self.device)
 
-                output, z_mu, z_var, ldj, z_0, z_k = self.model(data)
+                # # p(x | mu, sigma)
+                # output, z_mu, z_var, ldj, z_0, z_k = self.model(data)
+                # loss, recon, kld, kl_weight_param = self.criterion(
+                #     output=output,
+                #     target=data,
+                #     z_mu=z_mu,
+                #     z_var=z_var,
+                #     z_0=z_0,
+                #     z_k=z_k,
+                #     ldj=ldj,
+                #     kl_weight_param=1,
+                #     gamma=self.gamma,
+                #     recon_loss=self.recon_loss,
+                #     kl_loss=self.kl_loss,
+                #     pointwise=True,
+                # )
+                # recon_losses.extend(recon.numpy())
+                # targets.extend(target.numpy())
 
-                # computing loss, metrics on test set
+                # E [ p(x | mu, sigma)]
+                samples = 100
+                # n*samples x cols
+                inflated_data = data.repeat_interleave(samples, dim=0)
+                output, z_mu, z_var, ldj, z_0, z_k = self.model(inflated_data)
                 loss, recon, kld, kl_weight_param = self.criterion(
                     output=output,
-                    target=data,
+                    target=inflated_data,
                     z_mu=z_mu,
                     z_var=z_var,
                     z_0=z_0,
@@ -215,10 +236,14 @@ class Trainer(BaseTrainer):
                     gamma=self.gamma,
                     recon_loss=self.recon_loss,
                     kl_loss=self.kl_loss,
+                    pointwise=True,
                 )
+                recon_losses.extend(recon.reshape(data.shape[0], -1).mean(axis=1).numpy())
+                targets.extend(target.numpy())
 
-                recon_losses.append(recon.item())
-                targets.append(target.item())
+        import pickle
+
+        pickle.dump((recon_losses, targets), open("temp_results.pickle", "wb"))
 
         anomaly_metrics = top_n_percent_anomaly(
             recon_losses, targets, dataset=self.config["data_loader"]["args"]["dataset"]

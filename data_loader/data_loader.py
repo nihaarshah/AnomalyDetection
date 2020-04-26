@@ -30,7 +30,7 @@ class AnomDataLoader(DataLoader):
         )
 
         y = X if data_type in ["train", "val"] else y
-        batch_size = batch_size if data_type in ["train", "val"] else 1
+        # batch_size = batch_size if data_type in ["train", "val"] else 1
         self.dataset = TensorDataset(tensor(X).float(), tensor(y).float())
         super().__init__(
             dataset=self.dataset, batch_size=batch_size, shuffle=shuffle, num_workers=num_workers

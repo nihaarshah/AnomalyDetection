@@ -2,7 +2,7 @@
     "name": "test",
     "n_gpu": 1,
     "arch": {
-        "type": "VAE",
+        "type": "PlanarVAE",
         "args": {
             "encoder_sizes": [
                 128,
@@ -15,11 +15,9 @@
             "z_size": 32,
             "batch_norm": false,
             "dropout": 0.0,
-            "num_flows":2
+            "num_flows": 4
         }
     },
-    "arch_type":"PVAE",
-
     "data_loader": {
         "type": "AnomDataLoader",
         "args": {
@@ -50,7 +48,7 @@
         "beta_start": 0.0,
         "beta_stop": 1.0,
         "n_cycle": 6,
-        "ratio": 0.65
+        "ratio": 0.5
     },
     "metrics": [],
     "lr_scheduler": {
@@ -61,7 +59,7 @@
         }
     },
     "trainer": {
-        "epochs": 100,
+        "epochs": 2,
         "save_dir": "saved/",
         "save_period": 5,
         "verbosity": 2,
