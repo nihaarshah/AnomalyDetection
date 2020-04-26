@@ -238,8 +238,8 @@ class Trainer(BaseTrainer):
                     kl_loss=self.kl_loss,
                     pointwise=True,
                 )
-                recon_losses.extend(recon.reshape(data.shape[0], -1).mean(axis=1).numpy())
-                targets.extend(target.numpy())
+                recon_losses.extend(recon.reshape(data.shape[0], -1).mean(axis=1).cpu().numpy())
+                targets.extend(target.cpu().numpy())
 
         import pickle
 
