@@ -5,7 +5,7 @@ from .loss_utils import *
 
 
 def mse_loss(output, target):
-    return F.mse_loss(output, target, reduce=False)
+    return F.mse_loss(output, target, reduce=False).mean(axis=1)
 
 
 def bce_loss(output, target):

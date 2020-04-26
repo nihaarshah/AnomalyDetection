@@ -27,19 +27,23 @@ class Arrhythmia:
             self.X, self.y, test_size=self.test_perc, random_state=42
         )
 
-        X_train, X_val, y_train, y_val = train_test_split(
-            X_train, y_train, test_size=self.val_perc / self.train_perc, random_state=42
-        )
+        if self.val_perc > 0:
+            X_train, X_val, y_train, y_val = train_test_split(
+                X_train, y_train, test_size=self.val_perc / self.train_perc, random_state=42
+            )
 
         X_train = self.scaler.fit_transform(X_train)
-        X_val = self.scaler.transform(X_val)
+        if self.val_perc > 0:
+            X_val = self.scaler.transform(X_val)
         X_test = self.scaler.transform(X_test)
 
         X_train, y_train = self._remove_anomalies(X_train, y_train)
-        X_val, y_val = self._remove_anomalies(X_val, y_val)
+        if self.val_perc > 0:
+            X_val, y_val = self._remove_anomalies(X_val, y_val)
 
         self._save_data(X_train, y_train, f"arr_train_{self.scaling}.pickle")
-        self._save_data(X_val, y_val, f"arr_val_{self.scaling}.pickle")
+        if self.val_perc > 0:
+            self._save_data(X_val, y_val, f"arr_val_{self.scaling}.pickle")
         self._save_data(X_test, y_test, f"arr_test_{self.scaling}.pickle")
 
     def _remove_anomalies(self, X, y):
@@ -51,5 +55,5 @@ class Arrhythmia:
 
 if __name__ == "__main__":
     arr = Arrhythmia(
-        "arrhythmia.pickle", train_perc=0.6, val_perc=0.2, test_perc=0.2, scaling="binary"
+        "arrhythmia.pickle", train_perc=0.8, val_perc=0.0, test_perc=0.2, scaling="binary"
     )

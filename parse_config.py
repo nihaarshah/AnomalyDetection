@@ -30,6 +30,7 @@ class ConfigParser:
         exper_name = os.path.join(
             self.config["data_loader"]["args"]["dataset"],
             self.config["data_loader"]["args"]["scaling"],
+            self.config["arch"]["type"],
         )
         if resume is not None:
             run_id = str(self.resume).split("/")[-2] + "_resume"

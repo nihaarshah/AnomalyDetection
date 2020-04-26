@@ -2,7 +2,7 @@
     "name": "test",
     "n_gpu": 1,
     "arch": {
-        "type": "PlanarVAE",
+        "type": "VAE",
         "args": {
             "encoder_sizes": [
                 256,
@@ -12,7 +12,7 @@
                 128,
                 256
             ],
-            "z_size": 64,
+            "z_size": 32,
             "batch_norm": false,
             "dropout": 0.0,
             "num_flows": 10
@@ -32,7 +32,7 @@
     "optimizer": {
         "type": "Adam",
         "args": {
-            "lr": 5e-4,
+            "lr": 0.0005,
             "weight_decay": 0,
             "amsgrad": false
         }
@@ -46,9 +46,9 @@
         "loss": "weight",
         "schedule": "cyclical",
         "beta_start": 0.0,
-        "beta_stop": 0.1,
+        "beta_stop": 0.005,
         "n_cycle": 6,
-        "ratio": 0.65
+        "ratio": 0.8
     },
     "metrics": [],
     "lr_scheduler": {
@@ -59,7 +59,7 @@
         }
     },
     "trainer": {
-        "epochs": 50,
+        "epochs": 200,
         "save_dir": "saved/",
         "save_period": 5,
         "verbosity": 2,

@@ -14,11 +14,11 @@ from parse_config import ConfigParser
 from trainer import Trainer
 
 # fix random seeds for reproducibility
-# SEED = 123
-# torch.manual_seed(SEED)
-# torch.backends.cudnn.deterministic = True
-# torch.backends.cudnn.benchmark = False
-# np.random.seed(SEED)
+SEED = 123
+torch.manual_seed(SEED)
+torch.backends.cudnn.deterministic = True
+torch.backends.cudnn.benchmark = False
+np.random.seed(SEED)
 
 
 def main(config):
@@ -26,7 +26,8 @@ def main(config):
 
     # setup data_loader instances
     data_loader = config.init_obj("data_loader", module_data, data_type="train")
-    valid_data_loader = config.init_obj("data_loader", module_data, data_type="val")
+    valid_data_loader = None
+    # valid_data_loader = config.init_obj("data_loader", module_data, data_type="val")
     test_data_loader = config.init_obj("data_loader", module_data, data_type="test")
     # valid_data_loader = config.init_obj(
     #     'data_loader', module_data, data_type="val")

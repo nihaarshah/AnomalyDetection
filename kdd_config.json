@@ -2,7 +2,7 @@
     "name": "test",
     "n_gpu": 1,
     "arch": {
-        "type": "PlanarVAE",
+        "type": "VAE",
         "args": {
             "encoder_sizes": [
                 128,
@@ -12,7 +12,7 @@
                 64,
                 128
             ],
-            "z_size": 32,
+            "z_size": 16,
             "batch_norm": false,
             "dropout": 0.0,
             "num_flows": 4
@@ -46,9 +46,9 @@
         "loss": "weight",
         "schedule": "cyclical",
         "beta_start": 0.0,
-        "beta_stop": 1.0,
+        "beta_stop": 0.01,
         "n_cycle": 6,
-        "ratio": 0.5
+        "ratio": 0.8
     },
     "metrics": [],
     "lr_scheduler": {
@@ -59,7 +59,7 @@
         }
     },
     "trainer": {
-        "epochs": 2,
+        "epochs": 5,
         "save_dir": "saved/",
         "save_period": 5,
         "verbosity": 2,
