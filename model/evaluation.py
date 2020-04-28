@@ -4,7 +4,13 @@ from sklearn.metrics import accuracy_score, f1_score, precision_score, recall_sc
 
 def top_n_percent_anomaly(recon_error, true, dataset="kdd"):
 
-    top_n_perc = 0.2 if dataset == "kdd" else 0.15
+    if dataset == "kdd":
+        top_n_perc = 0.2
+    elif dataset == "thyroid":
+        top_n_perc = 0.025
+    else:
+        top_n_perc = 0.15
+
     n_obs = len(recon_error)
     top_n = int(n_obs * top_n_perc)
     top_recon_error_idx = np.argsort(recon_error)[-top_n:]
