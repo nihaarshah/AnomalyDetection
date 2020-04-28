@@ -2,7 +2,7 @@
     "name": "test",
     "n_gpu": 1,
     "arch": {
-        "type": "VAE",
+        "type": "IAFVAE",
         "args": {
             "encoder_sizes": [
                 128,
@@ -12,10 +12,11 @@
                 64,
                 128
             ],
-            "z_size": 16,
+            "z_size": 32,
             "batch_norm": false,
             "dropout": 0.0,
-            "num_flows": 4
+            "num_flows": 4,
+            "made_h_size": 320
         }
     },
     "data_loader": {
