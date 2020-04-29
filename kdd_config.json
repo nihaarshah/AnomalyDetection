@@ -14,9 +14,9 @@
             ],
             "z_size": 32,
             "batch_norm": false,
-            "dropout": 0.0,
-            "num_flows": 4,
-            "made_h_size": 320
+            "dropout": 0.2,
+            "num_flows": 20,
+            "made_h_size": 380
         }
     },
     "data_loader": {
@@ -47,7 +47,7 @@
         "loss": "weight",
         "schedule": "cyclical",
         "beta_start": 0.0,
-        "beta_stop": 0.01,
+        "beta_stop": 0.005,
         "n_cycle": 6,
         "ratio": 0.8
     },
@@ -60,7 +60,7 @@
         }
     },
     "trainer": {
-        "epochs": 5,
+        "epochs": 3,
         "save_dir": "saved/",
         "save_period": 5,
         "verbosity": 2,
