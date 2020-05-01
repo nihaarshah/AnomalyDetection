@@ -1,7 +1,7 @@
 {
     "name": "test",
-    "seed_runs": 1,
-    "seed": 123,
+    "seed_runs": 5,
+    "seed": 0,
     "n_gpu": 1,
     "arch": {
         "type": "IAFVAE",

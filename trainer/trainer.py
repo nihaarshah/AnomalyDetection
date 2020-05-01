@@ -252,7 +252,7 @@ class Trainer(BaseTrainer):
         for key, value in anomaly_metrics.items():
             self.logger.info("    {:15s}: {}".format(str(key), value))
 
-        return anomaly_metrics["f1"]
+        return anomaly_metrics
 
     def _progress(self, batch_idx):
         base = "[{}/{} ({:.0f}%)]"
