@@ -125,6 +125,14 @@ class Thyroid(BaseData):
         super(Thyroid, self).__init__(*args, **kwargs)
 
 
+class Musk(BaseData):
+    data_path = "musk.pickle"
+    dataset_name = "musk"
+
+    def __init__(self, *args, **kwargs):
+        super(Musk, self).__init__(*args, **kwargs)
+
+
 if __name__ == "__main__":
     import argparse
 
@@ -142,6 +150,8 @@ if __name__ == "__main__":
         data_class = Arrhythmia
     elif args.dataset == "thyroid":
         data_class = Thyroid
+    elif args.dataset == "musk":
+        data_class = Musk
 
     data_class(
         train_perc=args.train,

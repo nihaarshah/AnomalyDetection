@@ -14,7 +14,7 @@ from parse_config import ConfigParser
 from trainer import Trainer
 
 # fix random seeds for reproducibility
-# SEED = 123
+# SEED = 12344
 # torch.manual_seed(SEED)
 # torch.backends.cudnn.deterministic = True
 # torch.backends.cudnn.benchmark = False
@@ -36,13 +36,12 @@ def main(config):
     for _ in range(config["seed_runs"]):
         if random_seed:
             SEED = np.random.randint(1e5)
+            logger.info("SEED: {}".format(SEED))
 
         torch.manual_seed(SEED)
         torch.backends.cudnn.deterministic = True
         torch.backends.cudnn.benchmark = False
         np.random.seed(SEED)
-
-        logger.info("SEED: {}".format(SEED))
 
         # setup data_loader instances
         data_loader = config.init_obj("data_loader", module_data, data_type="train")
