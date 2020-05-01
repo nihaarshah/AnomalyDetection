@@ -18,7 +18,7 @@ from trainer import Trainer
 # torch.manual_seed(SEED)
 # torch.backends.cudnn.deterministic = True
 # torch.backends.cudnn.benchmark = False
-# np.random.seed(SEED)
+# # np.random.seed(SEED)
 
 
 def main(config):
@@ -33,7 +33,7 @@ def main(config):
         SEED = config["seed"]
 
     seed_results = []
-    for _ in range(config["seed_runs"]):
+    for _ in range(runs):
         if random_seed:
             SEED = np.random.randint(1e5)
             logger.info("SEED: {}".format(SEED))
@@ -41,7 +41,6 @@ def main(config):
         torch.manual_seed(SEED)
         torch.backends.cudnn.deterministic = True
         torch.backends.cudnn.benchmark = False
-        np.random.seed(SEED)
 
         # setup data_loader instances
         data_loader = config.init_obj("data_loader", module_data, data_type="train")

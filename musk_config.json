@@ -1,13 +1,13 @@
 {
     "name": "test",
-    "seed_runs": 5,
+    "seed_runs": 10,
     "seed": 0,
     "n_gpu": 1,
     "arch": {
-        "type": "VAE",
+        "type": "PlanarVAE",
         "args": {
             "encoder_sizes": [
-                256,
+                257,
                 128
             ],
             "decoder_sizes": [
@@ -17,7 +17,7 @@
             "z_size": 32,
             "batch_norm": false,
             "dropout": 0.2,
-            "num_flows": 10,
+            "num_flows": 1,
             "made_h_size": 320
         }
     },
@@ -49,7 +49,7 @@
         "loss": "weight",
         "schedule": "cyclical",
         "beta_start": 0.0,
-        "beta_stop": 0.0001,
+        "beta_stop": 0.01,
         "n_cycle": 6,
         "ratio": 0.8
     },
@@ -67,7 +67,7 @@
         "save_period": 5,
         "verbosity": 2,
         "monitor": "min val_loss",
-        "early_stop": 1000,
+        "early_stop": 40,
         "tensorboard": true
     }
 }

@@ -28,7 +28,6 @@ class VAE(nn.Module):
         self.dropout = dropout
         self._set_encoder()
         self._set_decoder()
-        # self.weight_init()
         self.num_flows = num_flows
         self.made_h_size = made_h_size
         self.q_z_nn_output_dim = encoder_sizes[-1]  # the size of the bottleneck
@@ -39,15 +38,6 @@ class VAE(nn.Module):
 
         # log-det-jacobian = 0 without flows
         self.log_det_j = self.FloatTensor(1).zero_()
-
-    # def weight_init(self):
-    #     for m in self.modules():
-    #         if isinstance(m, nn.Linear):
-    #             nn.init.normal_(m.weight, 0, 0.01)
-    #             nn.init.normal_(m.bias, 0, 0.01)
-    #         if isinstance(m, nn.BatchNorm1d):
-    #             nn.init.constant_(m.weight, 1)
-    #             nn.init.constant_(m.bias, 0)
 
     def _set_encoder(self):
         """Set encoder layers and z_mu, z_var """

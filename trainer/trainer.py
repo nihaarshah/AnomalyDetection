@@ -241,9 +241,9 @@ class Trainer(BaseTrainer):
                 recon_losses.extend(recon.reshape(data.shape[0], -1).mean(axis=1).cpu().numpy())
                 targets.extend(target.cpu().numpy())
 
-        import pickle
+        # import pickle
 
-        pickle.dump((recon_losses, targets), open("temp_results.pickle", "wb"))
+        # pickle.dump((recon_losses, targets), open("temp_results.pickle", "wb"))
 
         anomaly_metrics = top_n_percent_anomaly(
             recon_losses, targets, dataset=self.config["data_loader"]["args"]["dataset"]
