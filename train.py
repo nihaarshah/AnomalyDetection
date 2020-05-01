@@ -1,6 +1,7 @@
 # Code from github.com/victoresque/pytorch-template
 import argparse
 import collections
+import logging
 
 import numpy as np
 import torch
@@ -13,30 +14,26 @@ from parse_config import ConfigParser
 from trainer import Trainer
 
 # fix random seeds for reproducibility
-SEED = 123
-torch.manual_seed(SEED)
-torch.backends.cudnn.deterministic = True
-torch.backends.cudnn.benchmark = False
-np.random.seed(SEED)
+# SEED = 123
+# torch.manual_seed(SEED)
+# torch.backends.cudnn.deterministic = True
+# torch.backends.cudnn.benchmark = False
+# np.random.seed(SEED)
 
 
-def main(config):
+def main(config, seed=None):
+
     logger = config.get_logger("train")
+    logger.info(f"SEED: {seed}")
 
     # setup data_loader instances
     data_loader = config.init_obj("data_loader", module_data, data_type="train")
     valid_data_loader = None
     # valid_data_loader = config.init_obj("data_loader", module_data, data_type="val")
     test_data_loader = config.init_obj("data_loader", module_data, data_type="test")
-    # valid_data_loader = config.init_obj(
-    #     'data_loader', module_data, data_type="val")
 
     # build model architecture, then print to console
     model = config.init_obj("arch", VAE, input_size=data_loader.dataset.tensors[0].shape[1])
-    print(type(model))
-    # model = PVAE(input_size=data_loader.dataset.tensors[0].shape[1], encoder_sizes=[128,64], decoder_sizes=[64,128], z_size=32,num_flows=2)
-    logger.info(model)
-
     # get function handles of loss and metrics
     criterion = getattr(module_loss, config["loss"])
     metrics = [getattr(module_metric, met) for met in config["metrics"]]
@@ -60,7 +57,7 @@ def main(config):
     )
 
     trainer.train()
-    trainer.evaluate()
+    return trainer.evaluate()
 
 
 if __name__ == "__main__":
@@ -82,4 +79,26 @@ if __name__ == "__main__":
         CustomArgs(["--bs", "--batch_size"], type=int, target="data_loader;args;batch_size"),
     ]
     config = ConfigParser.from_args(args, options)
-    main(config)
+
+    runs = config["seed_runs"]
+    random_seed = True
+    if config["seed"] != 0:
+        runs = 1
+        random_seed = False
+        SEED = config["seed"]
+
+    results = []
+    for _ in range(config["seed_runs"]):
+        if random_seed:
+            SEED = np.random.randint(1e5)
+
+        torch.manual_seed(SEED)
+        torch.backends.cudnn.deterministic = True
+        torch.backends.cudnn.benchmark = False
+        np.random.seed(SEED)
+
+        f1 = main(config, SEED)
+        print(results)
+        results.append(f1)
+
+    logging.info(f1)

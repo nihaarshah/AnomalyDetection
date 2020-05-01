@@ -1,24 +1,22 @@
 {
     "name": "test",
-    "seed_runs": 1,
-    "seed": 123,
     "n_gpu": 1,
     "arch": {
-        "type": "IAFVAE",
+        "type": "VAE",
         "args": {
             "encoder_sizes": [
-                256,
-                128
+                128,
+                48
             ],
             "decoder_sizes": [
-                128,
-                256
+                48,
+                128
             ],
-            "z_size": 32,
+            "z_size": 5,
             "batch_norm": false,
-            "dropout": 0.2,
+            "dropout": 0.0,
             "num_flows": 10,
-            "made_h_size": 320
+            "made_h_size": 380
         }
     },
     "data_loader": {
@@ -28,7 +26,7 @@
             "batch_size": 20,
             "shuffle": true,
             "num_workers": 1,
-            "dataset": "arr",
+            "dataset": "thyroid",
             "scaling": "binary"
         }
     },
@@ -49,9 +47,9 @@
         "loss": "weight",
         "schedule": "cyclical",
         "beta_start": 0.0,
-        "beta_stop": 1,
+        "beta_stop": 0.005,
         "n_cycle": 6,
-        "ratio": 0.5
+        "ratio": 0.8
     },
     "metrics": [],
     "lr_scheduler": {
@@ -62,7 +60,7 @@
         }
     },
     "trainer": {
-        "epochs": 5,
+        "epochs": 3,
         "save_dir": "saved/",
         "save_period": 5,
         "verbosity": 2,
