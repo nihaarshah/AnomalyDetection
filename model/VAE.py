@@ -96,7 +96,7 @@ class VAE(nn.Module):
         # Normalizing flows here
 
         output = self.decode(z)
-        # Return more here with flows like in https://github.com/rtqichen/ffjord/blob/bce4d2def767f2b9a3288ae0b5d43781ad4dc6b1/vae_lib/models/VAE.py#L170
+
         return output, z_mu, z_var, self.log_det_j, z, z
 
 
@@ -107,7 +107,6 @@ class PlanarVAE(VAE):
     """
 
     def __init__(self, *args, **kwargs):
-        print("Args to Planar VAE are", args)
         super(PlanarVAE, self).__init__(*args, **kwargs)
 
         # Initialize log-det-jacobian to zero
@@ -134,7 +133,6 @@ class PlanarVAE(VAE):
         batch_size = x.size(0)
 
         h = self.encoder(x)
-
         h = h.view(-1, self.q_z_nn_output_dim)
         # print("hidden unit has shape",h.shape) # 250 x 256
         mean_z = self.z_mu(h)

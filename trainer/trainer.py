@@ -1,4 +1,6 @@
-# Code from github.com/victoresque/pytorch-template/
+# Trainer template from github.com/victoresque/pytorch-template/
+import pickle
+
 import numpy as np
 import torch
 
@@ -134,8 +136,6 @@ class Trainer(BaseTrainer):
                         kl_weight_param.item(),
                     )
                 )
-                # self.writer.add_image('input', make_grid(
-                #     data.cpu(), nrow=8, normalize=True))
 
             if batch_idx == self.len_epoch:
                 break
@@ -183,12 +183,7 @@ class Trainer(BaseTrainer):
                 self.valid_metrics.update("kld", kld.item())
                 for met in self.metric_ftns:
                     self.valid_metrics.update(met.__name__, met(output, target))
-                # self.writer.add_image('input', make_grid(
-                #     data.cpu(), nrow=8, normalize=True))
 
-        # add histogram of model parameters to the tensorboard
-        # for name, p in self.model.named_parameters():
-        #     self.writer.add_histogram(name, p, bins="auto")
         return self.valid_metrics.result()
 
     def evaluate(self):
@@ -199,25 +194,6 @@ class Trainer(BaseTrainer):
         with torch.no_grad():
             for i, (data, target) in enumerate(self.test_data_loader):
                 data, target = data.to(self.device), target.to(self.device)
-
-                # # p(x | mu, sigma)
-                # output, z_mu, z_var, ldj, z_0, z_k = self.model(data)
-                # loss, recon, kld, kl_weight_param = self.criterion(
-                #     output=output,
-                #     target=data,
-                #     z_mu=z_mu,
-                #     z_var=z_var,
-                #     z_0=z_0,
-                #     z_k=z_k,
-                #     ldj=ldj,
-                #     kl_weight_param=1,
-                #     gamma=self.gamma,
-                #     recon_loss=self.recon_loss,
-                #     kl_loss=self.kl_loss,
-                #     pointwise=True,
-                # )
-                # recon_losses.extend(recon.numpy())
-                # targets.extend(target.numpy())
 
                 # E [ p(x | mu, sigma)]
                 samples = 100
@@ -240,10 +216,6 @@ class Trainer(BaseTrainer):
                 )
                 recon_losses.extend(recon.reshape(data.shape[0], -1).mean(axis=1).cpu().numpy())
                 targets.extend(target.cpu().numpy())
-
-        # import pickle
-
-        # pickle.dump((recon_losses, targets), open("temp_results.pickle", "wb"))
 
         anomaly_metrics = top_n_percent_anomaly(
             recon_losses, targets, dataset=self.config["data_loader"]["args"]["dataset"]

@@ -99,7 +99,7 @@ class KDD(BaseData):
     anomaly_classes = ["normal."]
     multi_categorical_vars = [1, 2, 3]
     dataset_name = "kdd"
-    data_path = "kdd.pickle"
+    data_path = "kdd99.pickle"
 
     def __init__(self, *args, **kwargs):
         super(KDD, self).__init__(*args, **kwargs)

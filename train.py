@@ -50,6 +50,7 @@ def main(config):
 
         # build model architecture, then print to console
         model = config.init_obj("arch", VAE, input_size=data_loader.dataset.tensors[0].shape[1])
+
         # get function handles of loss and metrics
         criterion = getattr(module_loss, config["loss"])
         metrics = [getattr(module_metric, met) for met in config["metrics"]]
