@@ -8,6 +8,8 @@ def top_n_percent_anomaly(recon_error, true, dataset="kdd"):
         top_n_perc = 0.2
     elif dataset == "thyroid":
         top_n_perc = 0.025
+    elif dataset == "musk":
+        top_n_perc = 0.032
     else:
         top_n_perc = 0.15
 

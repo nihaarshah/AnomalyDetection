@@ -1,33 +1,33 @@
 {
     "name": "test",
+    "seed_runs": 1,
+    "seed": 2,
     "n_gpu": 1,
     "arch": {
-        "type": "IAFVAE",
+        "type": "PlanarVAE",
         "args": {
             "encoder_sizes": [
-                256,
-                128
+                10
             ],
             "decoder_sizes": [
-                128,
-                256
+                10
             ],
-            "z_size": 32,
+            "z_size": 4,
             "batch_norm": false,
             "dropout": 0.0,
-            "num_flows": 10,
-            "made_h_size": 320
+            "num_flows": 15,
+            "made_h_size": 400
         }
     },
     "data_loader": {
         "type": "AnomDataLoader",
         "args": {
             "data_dir": "data/",
-            "batch_size": 20,
+            "batch_size": 128,
             "shuffle": true,
             "num_workers": 1,
-            "dataset": "arr",
-            "scaling": "binary"
+            "dataset": "circle",
+            "scaling": "normal"
         }
     },
     "optimizer": {
@@ -43,12 +43,12 @@
         "C_start": 0,
         "C_stop": 25,
         "gamma": 1000,
-        "recon_loss": "bce",
+        "recon_loss": "mse",
         "loss": "weight",
         "schedule": "cyclical",
         "beta_start": 0.0,
-        "beta_stop": 1,
-        "n_cycle": 6,
+        "beta_stop": 0.01,
+        "n_cycle": 5,
         "ratio": 0.5
     },
     "metrics": [],

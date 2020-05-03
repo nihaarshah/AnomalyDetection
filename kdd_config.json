@@ -1,8 +1,10 @@
 {
     "name": "test",
+    "seed_runs": 5,
+    "seed": 0,
     "n_gpu": 1,
     "arch": {
-        "type": "IAFVAE",
+        "type": "VAE",
         "args": {
             "encoder_sizes": [
                 128,
@@ -12,7 +14,7 @@
                 64,
                 128
             ],
-            "z_size": 32,
+            "z_size": 12,
             "batch_norm": false,
             "dropout": 0.2,
             "num_flows": 20,
@@ -47,7 +49,7 @@
         "loss": "weight",
         "schedule": "cyclical",
         "beta_start": 0.0,
-        "beta_stop": 0.005,
+        "beta_stop": 0.01,
         "n_cycle": 6,
         "ratio": 0.8
     },
@@ -60,7 +62,7 @@
         }
     },
     "trainer": {
-        "epochs": 3,
+        "epochs": 4,
         "save_dir": "saved/",
         "save_period": 5,
         "verbosity": 2,

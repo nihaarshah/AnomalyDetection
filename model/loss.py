@@ -12,10 +12,6 @@ def bce_loss(output, target):
     return F.binary_cross_entropy_with_logits(output, target, reduce=False).mean(axis=1)
 
 
-def huber_loss(output, target):
-    return F.smooth_l1_loss(output, target, reduce=False).mean(axis=1)
-
-
 def kl_divergence(z_mu, z_var, z_0, z_k, ldj):
     """KL divergence for non-flow VAE
 

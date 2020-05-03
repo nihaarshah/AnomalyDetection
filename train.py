@@ -1,6 +1,7 @@
 # Code from github.com/victoresque/pytorch-template
 import argparse
 import collections
+import logging
 
 import numpy as np
 import torch
@@ -13,54 +14,72 @@ from parse_config import ConfigParser
 from trainer import Trainer
 
 # fix random seeds for reproducibility
-SEED = 123
-torch.manual_seed(SEED)
-torch.backends.cudnn.deterministic = True
-torch.backends.cudnn.benchmark = False
-np.random.seed(SEED)
+# SEED = 12344
+# torch.manual_seed(SEED)
+# torch.backends.cudnn.deterministic = True
+# torch.backends.cudnn.benchmark = False
+# # np.random.seed(SEED)
 
 
 def main(config):
+
     logger = config.get_logger("train")
 
-    # setup data_loader instances
-    data_loader = config.init_obj("data_loader", module_data, data_type="train")
-    valid_data_loader = None
-    # valid_data_loader = config.init_obj("data_loader", module_data, data_type="val")
-    test_data_loader = config.init_obj("data_loader", module_data, data_type="test")
-    # valid_data_loader = config.init_obj(
-    #     'data_loader', module_data, data_type="val")
+    runs = config["seed_runs"]
+    random_seed = True
+    if config["seed"] != 0:
+        runs = 1
+        random_seed = False
+        SEED = config["seed"]
 
-    # build model architecture, then print to console
-    model = config.init_obj("arch", VAE, input_size=data_loader.dataset.tensors[0].shape[1])
-    print(type(model))
-    # model = PVAE(input_size=data_loader.dataset.tensors[0].shape[1], encoder_sizes=[128,64], decoder_sizes=[64,128], z_size=32,num_flows=2)
-    logger.info(model)
+    seed_results = []
+    for _ in range(runs):
+        if random_seed:
+            SEED = np.random.randint(1e5)
+            logger.info("SEED: {}".format(SEED))
 
-    # get function handles of loss and metrics
-    criterion = getattr(module_loss, config["loss"])
-    metrics = [getattr(module_metric, met) for met in config["metrics"]]
+        torch.manual_seed(SEED)
+        torch.backends.cudnn.deterministic = True
+        torch.backends.cudnn.benchmark = False
 
-    # build optimizer, learning rate scheduler. delete every lines containing lr_scheduler for disabling scheduler
-    trainable_params = filter(lambda p: p.requires_grad, model.parameters())
-    optimizer = config.init_obj("optimizer", torch.optim, trainable_params)
+        # setup data_loader instances
+        data_loader = config.init_obj("data_loader", module_data, data_type="train")
+        valid_data_loader = None
+        # valid_data_loader = config.init_obj("data_loader", module_data, data_type="val")
+        test_data_loader = config.init_obj("data_loader", module_data, data_type="test")
 
-    lr_scheduler = config.init_obj("lr_scheduler", torch.optim.lr_scheduler, optimizer)
+        # build model architecture, then print to console
+        model = config.init_obj("arch", VAE, input_size=data_loader.dataset.tensors[0].shape[1])
 
-    trainer = Trainer(
-        model,
-        criterion,
-        metrics,
-        optimizer,
-        config=config,
-        data_loader=data_loader,
-        valid_data_loader=valid_data_loader,
-        test_data_loader=test_data_loader,
-        lr_scheduler=lr_scheduler,
-    )
+        # get function handles of loss and metrics
+        criterion = getattr(module_loss, config["loss"])
+        metrics = [getattr(module_metric, met) for met in config["metrics"]]
 
-    trainer.train()
-    trainer.evaluate()
+        # build optimizer, learning rate scheduler. delete every lines containing lr_scheduler for disabling scheduler
+        trainable_params = filter(lambda p: p.requires_grad, model.parameters())
+        optimizer = config.init_obj("optimizer", torch.optim, trainable_params)
+
+        lr_scheduler = config.init_obj("lr_scheduler", torch.optim.lr_scheduler, optimizer)
+
+        trainer = Trainer(
+            model,
+            criterion,
+            metrics,
+            optimizer,
+            config=config,
+            data_loader=data_loader,
+            valid_data_loader=valid_data_loader,
+            test_data_loader=test_data_loader,
+            lr_scheduler=lr_scheduler,
+        )
+
+        trainer.train()
+        eval_metrics = trainer.evaluate()
+        seed_results.append(eval_metrics["f1"])
+
+    logger.info(seed_results)
+    logger.info("Mean F1: {}".format(np.mean(seed_results)))
+    logger.info("Std F1: {}".format(np.std(seed_results)))
 
 
 if __name__ == "__main__":
@@ -82,4 +101,6 @@ if __name__ == "__main__":
         CustomArgs(["--bs", "--batch_size"], type=int, target="data_loader;args;batch_size"),
     ]
     config = ConfigParser.from_args(args, options)
+
     main(config)
+    # logging.info(seed_results)
